@@ -36,7 +36,8 @@
     "demo": "node scripts/demo.mjs app",
     "dist:linux": "npm run build && electron-builder --linux",
     "dist:server": "npm run build && node scripts/pack-server.mjs",
-    "i18n:check": "node scripts/i18n-check.mjs"
+    "i18n:check": "node scripts/i18n-check.mjs",
+    "dist:mac": "npm run build && electron-builder --mac --arm64 --publish never"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.133.0",
@@ -111,6 +112,22 @@
       {
         "from": "resources/tray-unread.png",
         "to": "tray-unread.png"
+      },
+      {
+        "from": "resources/trayTemplate.png",
+        "to": "trayTemplate.png"
+      },
+      {
+        "from": "resources/trayTemplate@2x.png",
+        "to": "trayTemplate@2x.png"
+      },
+      {
+        "from": "resources/trayUnreadTemplate.png",
+        "to": "trayUnreadTemplate.png"
+      },
+      {
+        "from": "resources/trayUnreadTemplate@2x.png",
+        "to": "trayUnreadTemplate@2x.png"
       }
     ],
     "asarUnpack": [
@@ -181,6 +198,47 @@
       "afterInstall": "resources/linux/after-install.tpl",
       "afterRemove": "resources/linux/after-remove.tpl"
     },
-    "copyright": "Copyright © 2026 Krabi"
+    "copyright": "Copyright © 2026 Krabi",
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.productivity",
+      "icon": "resources/icon.png",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "artifactName": "Octopus-Mail-${version}-${arch}.${ext}",
+      "extendInfo": {
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLName": "Octopus Mail",
+            "CFBundleURLSchemes": [
+              "octopus-mail"
+            ]
+          }
+        ]
+      },
+      "extraResources": [
+        {
+          "from": "resources/mac/octo",
+          "to": "octo"
+        }
+      ]
+    },
+    "dmg": {
+      "title": "Octopus Mail ${version}"
+    }
   }
 }

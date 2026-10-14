@@ -48,6 +48,8 @@ if (isolatedProfile) {
 /** Tray images: ICO on Windows, PNG elsewhere (Linux/macOS trays cannot read ICO). */
 function trayIcon(unread: boolean): string {
   const base = unread ? 'tray-unread' : 'tray'
+  // macOS menu bar: monochrome "Template" image (16 pt, @2x picked automatically), tinted by the system
+  if (process.platform === 'darwin') return iconPath(unread ? 'trayUnreadTemplate.png' : 'trayTemplate.png')
   return iconPath(process.platform === 'win32' ? `${base}.ico` : `${base}.png`)
 }
 
@@ -76,6 +78,7 @@ function createWindow(show = true): void {
     icon: icon || undefined,
     backgroundColor: '#f7f7f9',
     autoHideMenuBar: true,
+    ...(process.platform === 'darwin' ? { titleBarStyle: 'hiddenInset' as const, trafficLightPosition: { x: 16, y: 18 } } : {}),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -324,7 +327,11 @@ function registerIpc(): void {
   ipcMain.handle('cli-path', () => {
     // installed: the octo wrapper next to the executable runs the CLI with Electron's own Node; dev: plain node + bundle
     const wrapper = process.platform === 'win32' ? 'octo.cmd' : 'octo'
-    if (app.isPackaged) return { script: path.join(path.dirname(process.execPath), wrapper), node: '', packaged: true }
+    if (app.isPackaged) {
+      // macOS: the wrapper sits in Contents/Resources (a script next to the binary would break code signing)
+      const dir = process.platform === 'darwin' ? process.resourcesPath : path.dirname(process.execPath)
+      return { script: path.join(dir, wrapper), node: '', packaged: true }
+    }
     return { script: path.join(app.getAppPath(), 'out', 'cli', 'octo.js'), node: 'node', packaged: false }
   })
   ipcMain.handle('set-badge', (_e, dataUrl: string | null, count: number) => {
@@ -378,9 +385,25 @@ function registerCidProtocol(): void {
   })
 }
 
+/** macOS needs a real menu bar (Cmd+C/V/Q/W come from its roles); Windows/Linux keep the window menu-less. */
+function setupMenu(): void {
+  if (process.platform !== 'darwin') return Menu.setApplicationMenu(null)
+  Menu.setApplicationMenu(
+    Menu.buildFromTemplate([
+      { role: 'appMenu' },
+      { role: 'editMenu' },
+      { label: t('View'), submenu: [{ role: 'reload' }, { role: 'togglefullscreen' }, { role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' }] },
+      { role: 'windowMenu' },
+    ]),
+  )
+}
+
 function createTray(): void {
   const icon = trayIcon(false)
-  tray = new Tray(icon || nativeImage.createEmpty())
+  const image = icon ? nativeImage.createFromPath(icon) : nativeImage.createEmpty()
+  if (process.platform === 'darwin') image.setTemplateImage(true)
+  tray = new Tray(image)
+  if (process.platform === 'darwin') tray.setIgnoreDoubleClickEvents(true)
   tray.setToolTip('Octopus Mail')
   buildTrayMenu()
   tray.on('click', showWindow)
@@ -439,7 +462,7 @@ app.whenReady().then(async () => {
   backend.onEvent(forwardEvent)
   backend.onSettingsChanged(applyLanguage)
   applyLanguage()
-  Menu.setApplicationMenu(null)
+  setupMenu()
   createTray()
   // started with Windows (--hidden): stay in the tray until the user opens the window
   createWindow(!process.argv.includes('--hidden'))
@@ -466,6 +489,10 @@ app.on('will-quit', (e) => {
   void backend.stop().finally(() => app.quit())
 })
 
+// macOS: clicking the Dock icon brings the (hidden) window back
+app.on('activate', showWindow)
+
 app.on('window-all-closed', () => {
+  if (process.platform === 'darwin') return
   if (!backend.settings().minimizeToTray) app.quit()
 })

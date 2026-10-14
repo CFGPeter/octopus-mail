@@ -207,3 +207,18 @@ button {
 .anim-drawer {
   animation: octo-drawer 0.18s ease-out;
 }
+
+/* macOS: the window has no title bar (traffic lights float over the app): reserve a draggable strip */
+[data-platform="darwin"] #root {
+  padding-top: 28px;
+  box-sizing: border-box;
+}
+[data-platform="darwin"] body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 28px;
+  -webkit-app-region: drag;
+  z-index: 60;
+  pointer-events: auto;
+}

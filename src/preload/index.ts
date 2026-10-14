@@ -47,3 +47,9 @@ const api = {
 
 contextBridge.exposeInMainWorld('octo', api)
 export type OctoBridge = typeof api
+
+// lets the stylesheet adapt to the host window chrome (e.g. macOS traffic lights); the preload has no DOM typings
+const dom = globalThis as unknown as { addEventListener(t: string, f: () => void): void; document: { documentElement: { dataset: Record<string, string> } } }
+dom.addEventListener('DOMContentLoaded', () => {
+  dom.document.documentElement.dataset.platform = process.platform
+})

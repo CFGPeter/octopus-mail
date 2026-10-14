@@ -21,6 +21,7 @@ const dict: Dictionary = {
     "Couldn't determine the account's email address": 'Nie udało się ustalić adresu e-mail konta',
     'The app is not connected to a home server': 'Aplikacja nie jest połączona z serwerem domowym',
     'Open Octopus Mail': 'Otwórz Octopus Mail',
+    'View': 'Widok',
     'New message': 'Nowa wiadomość',
     'Sync now': 'Synchronizuj teraz',
     Quit: 'Zakończ',
