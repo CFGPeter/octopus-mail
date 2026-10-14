@@ -56,6 +56,9 @@ export const PRESETS: Record<string, ServerConfig> = {
   mailcom: P('mailcom', 'mail.com', 'imap.mail.com', 'smtp.mail.com', 587, {
     hint: 'mail.com: turn on POP3/IMAP access in the mailbox settings on mail.com.',
   }),
+  infomaniak: P('infomaniak', 'Infomaniak', 'mail.infomaniak.com', 'mail.infomaniak.com', 465, {
+    hint: 'Infomaniak: log in with the full address. With two-step verification on, create a device password (Infomaniak Manager → Mail → the mailbox → Device passwords).',
+  }),
   gmx: P('gmx', 'GMX', 'imap.gmx.com', 'mail.gmx.com', 587),
   homepl: P('homepl', 'home.pl', '', '', 465, {
     hint: 'home.pl: the server is usually the domain name or serverXXXX.home.pl (home.pl panel → Mail).',
@@ -102,6 +105,10 @@ const DOMAIN_MAP: Record<string, string> = {
   'mail.com': 'mailcom',
   'email.com': 'mailcom',
   'usa.com': 'mailcom',
+  'ik.me': 'infomaniak',
+  'ikmail.com': 'infomaniak',
+  'etik.com': 'infomaniak',
+  'infomaniak.ch': 'infomaniak',
   'gmx.com': 'gmx',
   'gmx.net': 'gmx',
   'gmx.de': 'gmx',
@@ -126,6 +133,7 @@ const MX_MAP: [RegExp, string][] = [
   [/messagingengine\.com$/i, 'fastmail'],
   [/zoho\.(com|eu)$/i, 'zoho'],
   [/mail\.com$|gmx\.(net|com)$/i, 'mailcom'],
+  [/infomaniak\.(ch|com)$/i, 'infomaniak'],
   [/home\.pl$/i, 'homepl'],
 ]
 

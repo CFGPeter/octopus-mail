@@ -13,6 +13,7 @@ const QUICK = [
   { id: 'gmail', label: 'Gmail', domain: 'gmail.com' },
   { id: 'outlook', label: 'Outlook', domain: 'outlook.com' },
   { id: 'icloud', label: 'iCloud', domain: 'icloud.com' },
+  { id: 'infomaniak', label: 'Infomaniak', domain: 'ik.me' },
   { id: 'homepl', label: 'home.pl', domain: '' },
   { id: 'mailcom', label: 'mail.com', domain: 'mail.com' },
   { id: 'wp', label: 'WP / o2 / Onet', domain: 'wp.pl' },

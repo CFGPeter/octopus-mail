@@ -239,6 +239,8 @@ const dict: Dictionary = {
     'iCloud: use an app-specific password from appleid.apple.com.': 'iCloud: użyj hasła dla aplikacji z appleid.apple.com.',
     'mail.com: turn on POP3/IMAP access in the mailbox settings on mail.com.': 'mail.com: włącz dostęp POP3/IMAP w ustawieniach skrzynki na stronie mail.com.',
     'home.pl: the server is usually the domain name or serverXXXX.home.pl (home.pl panel → Mail).': 'home.pl: serwer to zwykle nazwa domeny albo serwerXXXX.home.pl (panel home.pl → Poczta).',
+    'Infomaniak: log in with the full address. With two-step verification on, create a device password (Infomaniak Manager → Mail → the mailbox → Device passwords).':
+      'Infomaniak: zaloguj się pełnym adresem. Przy włączonej weryfikacji dwuetapowej utwórz hasło urządzenia (Infomaniak Manager → Mail → skrzynka → Hasła urządzeń).',
     'WP: turn on IMAP/SMTP access in the mail settings.': 'WP: włącz dostęp IMAP/SMTP w ustawieniach poczty.',
     'Onet: turn on access for mail programs.': 'Onet: włącz dostęp przez programy pocztowe.',
     'Proton requires Proton Mail Bridge to be running.': 'Proton wymaga uruchomionego Proton Mail Bridge.',
