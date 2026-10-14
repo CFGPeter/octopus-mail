@@ -1,0 +1,188 @@
+// French translations: calendar. Keys are the English source strings used with t() / tp().
+import type { Dictionary } from '../../i18n'
+
+const dict: Dictionary = {
+  strings: {
+    // the same in French
+    'Agenda': 'Agenda',
+    'Agenda (A)': 'Agenda (A)',
+    '30 min': '30 min',
+    // view modes and navigation
+    Day: 'Jour',
+    'Day (D)': 'Jour (D)',
+    Week: 'Semaine',
+    'Week (W)': 'Semaine (W)',
+    Month: 'Mois',
+    'Month (M)': 'Mois (M)',
+    Today: 'Aujourd’hui',
+    'Today (T)': 'Aujourd’hui (T)',
+    Tomorrow: 'Demain',
+    'Previous (←)': 'Précédent (←)',
+    'Next (→)': 'Suivant (→)',
+    'Previous month': 'Mois précédent',
+    'Next month': 'Mois suivant',
+    'Hide sidebar': 'Masquer le panneau',
+    'Show sidebar': 'Afficher le panneau',
+    'Show this day': 'Afficher ce jour',
+    'Sync calendars': 'Synchroniser les calendriers',
+    'New event': 'Nouvel événement',
+    'New event (N)': 'Nouvel événement (N)',
+    Calendar: 'Calendrier',
+
+    // event times and grid
+    '{from} – {to} · all day': '{from} – {to} · toute la journée',
+    '{date} · all day': '{date} · toute la journée',
+    'all day': 'toute la journée',
+    'from {time}': 'à partir de {time}',
+    'until {time}': 'jusqu’à {time}',
+    '(no title)': '(sans titre)',
+    '+{n} more': '+{n} de plus',
+    'No events': 'Aucun événement',
+    'Nothing scheduled in the next 30 days.': 'Rien de prévu dans les 30 prochains jours.',
+    'Online meeting': 'Réunion en ligne',
+
+    // side panel: calendars
+    Calendars: 'Calendriers',
+    'Add calendar': 'Ajouter un calendrier',
+    'Sync error: {error}': 'Erreur de synchronisation : {error}',
+    Options: 'Options',
+    '{name} (read-only)': '{name} (lecture seule)',
+    'No calendars': 'Aucun calendrier',
+    'Syncing…': 'Synchronisation…',
+    'Sync now': 'Synchroniser maintenant',
+    'Show only this one': 'Afficher uniquement celui-ci',
+    'Remove calendar…': 'Supprimer le calendrier…',
+
+    // side panel: free slots
+    'Find a free slot': 'Trouver un créneau libre',
+    '1 hour': '1 heure',
+    '1.5 hours': '1,5 heure',
+    Search: 'Rechercher',
+    'No free slots during working hours (9:00–17:00) in the next 7 days.': 'Aucun créneau libre pendant les heures de travail (9 h–17 h) dans les 7 prochains jours.',
+    '{time} — create event': '{time} — créer l’événement',
+
+    // event details
+    Going: 'Participe',
+    Declined: 'A refusé',
+    Maybe: 'Peut-être',
+    'Awaiting response': 'En attente de réponse',
+    'Response sent to the organizer': 'Réponse envoyée à l’organisateur',
+    'Email attendees': 'Écrire aux participants',
+    Delete: 'Supprimer',
+    Edit: 'Modifier',
+    'Recurring event': 'Événement récurrent',
+    Cancelled: 'Annulé',
+    'Join meeting': 'Rejoindre la réunion',
+    '(read-only)': '(lecture seule)',
+    'Organizer:': 'Organisateur :',
+    You: 'Vous',
+    'Attendees ({n}) · {yes} yes': 'Participants ({n}) · {yes} oui',
+    '(you)': '(vous)',
+    'Going?': 'Participez-vous ?',
+    Yes: 'Oui',
+    No: 'Non',
+
+    // event editor
+    'Invalid date or time.': 'Date ou heure invalide.',
+    'The event can’t end before it starts.': 'L’événement ne peut pas se terminer avant son début.',
+    'Invalid attendee address: {email}': 'Adresse de participant invalide : {email}',
+    'Event created and invitations sent': 'Événement créé et invitations envoyées',
+    'Event created': 'Événement créé',
+    'Changes saved': 'Modifications enregistrées',
+    'Edit this occurrence': 'Modifier cette occurrence',
+    'Edit the whole series': 'Modifier toute la série',
+    'Edit event': 'Modifier l’événement',
+    Cancel: 'Annuler',
+    Save: 'Enregistrer',
+    Title: 'Titre',
+    'Quick add': 'Ajout rapide',
+    'Enter → “{title}”, {when}': 'Entrée → « {title} », {when}',
+    'I can’t read a date — try e.g. “tomorrow 10:00”, “fri 14:30”, “20.10 9:15”.':
+      'Je ne reconnais pas de date — essayez par ex. « demain 10:00 », « ven 14:30 », « 20.10 9:15 ».',
+    'e.g. tomorrow 10:00 or “Lunch with Anna fri 13:00”': 'par ex. demain 10:00 ou « Déjeuner avec Anna ven 13:00 »',
+    'No writable calendar — add a calendar.': 'Aucun calendrier modifiable — ajoutez un calendrier.',
+    'All day': 'Toute la journée',
+    'Changes apply only to this occurrence — the calendar can’t be changed here.':
+      'Les modifications ne concernent que cette occurrence — le calendrier ne peut pas être changé ici.',
+    'Changes apply to the whole series; changing the date or time moves every occurrence.':
+      'Les modifications concernent toute la série ; changer la date ou l’heure déplace toutes les occurrences.',
+    Starts: 'Début',
+    Ends: 'Fin',
+    Location: 'Lieu',
+    'Address or room': 'Adresse ou salle',
+    'Meeting link': 'Lien de la réunion',
+    'https://meet.google.com/… or Teams / Zoom': 'https://meet.google.com/… ou Teams / Zoom',
+    Attendees: 'Participants',
+    'Email addresses separated by commas — attendees get an invitation by email.':
+      'Adresses e-mail séparées par des virgules — les participants reçoivent une invitation par e-mail.',
+    'anna@example.com, john@example.com': 'anna@exemple.fr, jean@exemple.fr',
+    Description: 'Description',
+
+    // adding calendar sources
+    'ICS subscription': 'Abonnement ICS',
+    Local: 'Local',
+    'Local calendar added': 'Calendrier local ajouté',
+    'Calendar added — syncing': 'Calendrier ajouté — synchronisation en cours',
+    Add: 'Ajouter',
+    Provider: 'Fournisseur',
+    'Nextcloud / other CalDAV server': 'Nextcloud / autre serveur CalDAV',
+    'Server address': 'Adresse du serveur',
+    'Server address (optional)': 'Adresse du serveur (facultatif)',
+    'E.g. https://cloud.example.com/remote.php/dav': 'Par ex. https://cloud.exemple.fr/remote.php/dav',
+    'Leave empty — the address is set automatically.': 'Laissez vide — l’adresse est définie automatiquement.',
+    Username: 'Nom d’utilisateur',
+    'usually your email address': 'généralement votre adresse e-mail',
+    Password: 'Mot de passe',
+    'App password': 'Mot de passe d’application',
+    'Create an app-specific password at appleid.apple.com → Sign-In and Security.':
+      'Créez un mot de passe d’application sur appleid.apple.com → Connexion et sécurité.',
+    'Create an app password in Fastmail → Settings → Privacy & Security.':
+      'Créez un mot de passe d’application dans Fastmail → Paramètres → Confidentialité et sécurité.',
+    'The password will be stored {where}, not in the database.': 'Le mot de passe sera stocké {where}, pas dans la base de données.',
+    'Subscription URL': 'URL d’abonnement',
+    'An .ics or webcal:// link — e.g. holidays, a class timetable, a team calendar. Subscriptions are read-only.':
+      'Un lien .ics ou webcal:// — par ex. jours fériés, emploi du temps, calendrier d’équipe. Les abonnements sont en lecture seule.',
+    'webcal://… or https://….ics': 'webcal://… ou https://….ics',
+    'A local calendar is stored only on this computer — it doesn’t sync with any server. Invitations to attendees are still sent by email.':
+      'Un calendrier local est enregistré uniquement sur cet ordinateur — il ne se synchronise avec aucun serveur. Les invitations aux participants sont tout de même envoyées par e-mail.',
+    'Google account': 'Compte Google',
+    'Calendars of Google accounts signed in with OAuth are usually added automatically.':
+      'Les calendriers des comptes Google connectés via OAuth sont généralement ajoutés automatiquement.',
+    'Name (optional)': 'Nom (facultatif)',
+
+    // onboarding
+    'You don’t have any calendars yet': 'Vous n’avez pas encore de calendrier',
+    'Google accounts added with OAuth sign-in (Settings → Accounts) get their calendar automatically — events sync on their own. You can also connect another calendar:':
+      'Les comptes Google ajoutés via la connexion OAuth (Paramètres → Comptes) obtiennent leur calendrier automatiquement — les événements se synchronisent seuls. Vous pouvez aussi connecter un autre calendrier :',
+    'iCloud, Fastmail, Nextcloud — username and app password': 'iCloud, Fastmail, Nextcloud — identifiant et mot de passe d’application',
+    'An .ics or webcal:// link (read-only)': 'Un lien .ics ou webcal:// (lecture seule)',
+    'A calendar only on this computer': 'Un calendrier uniquement sur cet ordinateur',
+    'Connect Google Calendar ({emails})': 'Connecter Google Agenda ({emails})',
+
+    // actions, confirmations and toasts
+    'There’s no calendar you can save events to.': 'Aucun calendrier ne permet d’enregistrer des événements.',
+    'Edit recurring event?': 'Modifier l’événement récurrent ?',
+    '“{title}” repeats. What do you want to change?': '« {title} » se répète. Que voulez-vous modifier ?',
+    Event: 'Événement',
+    'Only this occurrence': 'Uniquement cette occurrence',
+    'The whole series': 'Toute la série',
+    'Occurrence deleted': 'Occurrence supprimée',
+    'Event deleted': 'Événement supprimé',
+    'Attendees will get a cancellation by email.': 'Les participants recevront une annulation par e-mail.',
+    'Delete recurring event?': 'Supprimer l’événement récurrent ?',
+    '“{title}” repeats. What do you want to delete?': '« {title} » se répète. Que voulez-vous supprimer ?',
+    'Delete event?': 'Supprimer l’événement ?',
+    '“{title}” will be deleted from the calendar “{calendar}”.': '« {title} » sera supprimé du calendrier « {calendar} ».',
+    'Couldn’t sync: {list}': 'Synchronisation impossible : {list}',
+    'Calendars synced': 'Calendriers synchronisés',
+    'Remove calendar?': 'Supprimer le calendrier ?',
+    '“{name}” will be removed from Octopus Mail together with its locally saved events.':
+      '« {name} » sera supprimé d’Octopus Mail avec ses événements enregistrés localement.',
+    'The local calendar’s events will be lost.': 'Les événements du calendrier local seront perdus.',
+    'Data on the server stays unchanged.': 'Les données sur le serveur restent inchangées.',
+    Remove: 'Supprimer',
+    'Calendar removed': 'Calendrier supprimé',
+  },
+  plurals: {},
+}
+export default dict

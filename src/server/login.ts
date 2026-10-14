@@ -14,8 +14,9 @@ export function langFromAcceptLanguage(header: string | string[] | undefined | n
     .filter((p) => p.tag && p.q > 0)
     .sort((a, b) => b.q - a.q || a.i - b.i)
   for (const p of prefs) {
-    if (detectLang(p.tag) === 'pl') return 'pl'
     if (/^en\b/.test(p.tag)) return 'en'
+    const l = detectLang(p.tag)
+    if (l !== 'en') return l
   }
   return 'en'
 }

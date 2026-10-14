@@ -361,7 +361,7 @@ export interface AppSettings {
   theme: 'system' | 'light' | 'dark'
   density: 'comfortable' | 'compact'
   /** UI language; 'auto' follows the system (Polish systems → Polish, others → English) */
-  language: 'auto' | 'pl' | 'en'
+  language: 'auto' | 'pl' | 'en' | 'fr' | 'es'
   smartInbox: boolean
   groupNewsletters: boolean
   groupNotifications: boolean
@@ -382,7 +382,7 @@ export interface AppSettings {
     claudeModel: string
     smartCategorize: boolean
     autoSummaries: boolean
-    replyLanguage: 'auto' | 'pl' | 'en'
+    replyLanguage: 'auto' | 'pl' | 'en' | 'fr' | 'es'
     persona: string
   }
   snoozeMorningHour: number

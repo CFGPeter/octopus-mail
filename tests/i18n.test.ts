@@ -109,6 +109,68 @@ describe('language detection', () => {
   })
 })
 
+describe('French and Spanish', () => {
+  it('detects and initialises each locale', () => {
+    assert.equal(detectLang('fr-FR'), 'fr')
+    assert.equal(detectLang('fr'), 'fr')
+    assert.equal(detectLang('es-MX'), 'es')
+    assert.equal(detectLang('es'), 'es')
+    assert.equal(detectLang('de-DE'), 'en')
+    assert.equal(initLang('auto', 'fr-CA'), 'fr')
+    assert.equal(dateLocale(), 'fr-FR')
+    assert.equal(initLang('auto', 'es-AR'), 'es')
+    assert.equal(dateLocale(), 'es-ES')
+    assert.equal(initLang('fr', 'en-US'), 'fr')
+    assert.equal(initLang('es', 'pl-PL'), 'es')
+    assert.equal(initLang('pl', 'fr-FR'), 'pl')
+    assert.equal(dateLocale(), 'pl-PL')
+  })
+
+  it('lets OCTO_LANG override the setting', () => {
+    try {
+      for (const l of ['en', 'pl', 'fr', 'es'] as const) {
+        process.env.OCTO_LANG = l
+        assert.equal(initLang(l === 'en' ? 'pl' : 'en', 'de-DE'), l)
+      }
+      process.env.OCTO_LANG = 'xx'
+      assert.equal(initLang('fr', 'en-US'), 'fr', 'an unknown value is ignored')
+    } finally {
+      delete process.env.OCTO_LANG
+    }
+  })
+
+  it('translates a sample key', () => {
+    setLang('fr')
+    assert.equal(t('New message'), 'Nouveau message')
+    assert.equal(t('Not translated yet'), 'Not translated yet')
+    setLang('es')
+    assert.equal(t('New message'), 'Nuevo mensaje')
+  })
+
+  it('applies French plural rules (0 and 1 are singular)', () => {
+    setLang('fr')
+    const k = (n: number) => tp(n, '{n} new message', '{n} new messages')
+    assert.equal(k(0), '0 nouveau message')
+    assert.equal(k(1), '1 nouveau message')
+    assert.equal(k(2), '2 nouveaux messages')
+    assert.equal(k(5), '5 nouveaux messages')
+  })
+
+  it('applies Spanish plural rules (only 1 is singular)', () => {
+    setLang('es')
+    const k = (n: number) => tp(n, '{n} new message', '{n} new messages')
+    assert.equal(k(0), '0 mensajes nuevos')
+    assert.equal(k(1), '1 mensaje nuevo')
+    assert.equal(k(2), '2 mensajes nuevos')
+    assert.equal(k(5), '5 mensajes nuevos')
+  })
+
+  it('reads fr and es from Accept-Language', () => {
+    assert.equal(langFromAcceptLanguage('fr-FR,fr;q=0.9,en;q=0.5'), 'fr')
+    assert.equal(langFromAcceptLanguage('es-ES,es;q=0.9'), 'es')
+  })
+})
+
 describe('parseWhen', () => {
   const english: [string, number | null][] = [
     ['today 17:00', at(10, 13, 17)],

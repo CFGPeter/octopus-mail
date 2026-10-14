@@ -503,7 +503,7 @@ function AiTab() {
         <Field label="Model"><Select value={s.ai.claudeModel} onChange={(v) => ai({ claudeModel: v })} options={(status?.claudeModels || []).map((m) => ({ value: m.id, label: m.label }))} /></Field>
       </Section>
       <Section title={t('Style')}>
-        <Field label={t('Reply language')}><Select value={s.ai.replyLanguage} onChange={(v) => ai({ replyLanguage: v })} options={[{ value: 'auto', label: t('Same as the conversation') }, { value: 'pl', label: t('Always in Polish') }, { value: 'en', label: t('Always in English') }]} /></Field>
+        <Field label={t('Reply language')}><Select value={s.ai.replyLanguage} onChange={(v) => ai({ replyLanguage: v })} options={[{ value: 'auto', label: t('Same as the conversation') }, { value: 'pl', label: t('Always in Polish') }, { value: 'en', label: t('Always in English') }, { value: 'fr', label: t('Always in French') }, { value: 'es', label: t('Always in Spanish') }]} /></Field>
         <Field label={t('About me (persona)')} hint={t('Who you are and how you write — the AI uses this when drafting replies.')}>
           <textarea className={cx(inputCls, 'h-24 py-2')} value={s.ai.persona} placeholder={t('e.g. Anna, owner of a small design studio. I write briefly and to the point, on a first-name basis.')} onChange={(e) => ai({ persona: e.target.value })} />
         </Field>

@@ -218,6 +218,8 @@ const dict: Dictionary = {
     'Same as the conversation': 'Jak w korespondencji',
     'Always in Polish': 'Zawsze po polsku',
     'Always in English': 'Zawsze po angielsku',
+    'Always in French': 'Zawsze po francusku',
+    'Always in Spanish': 'Zawsze po hiszpańsku',
     'About me (persona)': 'O mnie (persona)',
     'Who you are and how you write — the AI uses this when drafting replies.':
       'Kim jesteś i jak piszesz — AI użyje tego przy redagowaniu odpowiedzi.',
