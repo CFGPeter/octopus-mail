@@ -282,7 +282,12 @@ const dict: Dictionary = {
     'Revoke access for the device “{name}”?': 'Odebrać dostęp urządzeniu „{name}”?',
     'Revoke access': 'Odbierz dostęp',
     'Add device': 'Dodaj urządzenie',
-    'Pairing code (one-time, valid until {time})': 'Kod parowania (jednorazowy, ważny do {time})',
+    'Pairing code (one-time, expires in {time})': 'Kod parowania (jednorazowy, wygasa za {time})',
+    'Device name (optional)': 'Nazwa urządzenia (opcjonalnie)',
+    'Create code': 'Utwórz kod',
+    'New code': 'Nowy kod',
+    'The code has expired': 'Kod wygasł',
+    'Could not create a code': 'Nie udało się utworzyć kodu',
     'Computer: Settings → Home server. Phone or browser: open {url} and enter the code.':
       'Komputer: Ustawienia → Serwer domowy. Telefon lub przeglądarka: otwórz {url} i wpisz kod.',
     'Claude Code with a home server': 'Claude Code przy serwerze domowym',

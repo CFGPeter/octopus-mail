@@ -3,7 +3,7 @@ import {
 } from 'lucide-react'
 import { Fragment, type ReactNode, useEffect, useState } from 'react'
 import type { Account, AgentAccess, AppSettings, Rule, RuleAction, RuleCondition, Signature, Template } from '../../../shared/types'
-import { dateLocale, getLang, LANGUAGES, t, tp } from '../../../shared/i18n'
+import { getLang, LANGUAGES, t, tp } from '../../../shared/i18n'
 import { api, errorText } from '../lib/api'
 import { copyText, fullDate } from '../lib/format'
 import { useNarrow } from '../lib/narrow'
@@ -585,6 +585,83 @@ type ServerStatus =
   | { mode: 'local' }
   | { mode: 'remote'; url: string; deviceId: string; deviceName: string; serverName?: string; online: boolean; devices: { id: string; name: string; createdAt: number; lastSeen: number | null; lastIp: string | null }[] }
 
+/** "Add device": optional name, then a one-time code with a countdown and a Copy button. Works in the app and in a paired browser. */
+function PairingCodeBox({ url }: { url: string }) {
+  const toast = useStore((s) => s.toast)
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [res, setRes] = useState<{ code: string; expires: number } | null>(null)
+  const [left, setLeft] = useState(0)
+  useEffect(() => {
+    if (!res) return
+    const tick = () => setLeft(Math.max(0, Math.ceil((res.expires - Date.now()) / 1000)))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [res])
+  const create = async () => {
+    setBusy(true)
+    try {
+      const r = (await window.octo.serverNewCode(name.trim() || undefined)) as { code?: string; expires?: number; error?: string }
+      if (!r.code || !r.expires) throw new Error(r.error || t('Could not create a code'))
+      setRes({ code: r.code, expires: r.expires })
+    } catch (e) {
+      toast({ level: 'error', message: errorText(e) })
+    } finally {
+      setBusy(false)
+    }
+  }
+  const copy = async () => {
+    try {
+      await copyText(res!.code)
+      toast({ level: 'success', message: t('Copied') })
+    } catch (e) {
+      toast({ level: 'error', message: errorText(e) })
+    }
+  }
+  const expired = !!res && left <= 0
+  const mmss = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`
+  return (
+    <>
+      <div className="py-2">
+        {!open ? (
+          <Button size="sm" onClick={() => setOpen(true)}>
+            <Plus size={14} /> {t('Add device')}
+          </Button>
+        ) : (
+          !res && (
+            <div className="flex items-center gap-2 max-md:flex-wrap">
+              <input className={cx(inputCls, 'max-w-[260px]')} placeholder={t('Device name (optional)')} maxLength={80} value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && void create()} />
+              <Button size="sm" variant="primary" disabled={busy} onClick={() => void create()}>
+                {busy && <Spinner />} {t('Create code')}
+              </Button>
+            </div>
+          )
+        )}
+      </div>
+      {res && (
+        <div className="mb-2 rounded-xl bg-accent-soft p-4 text-center">
+          <div className="text-[12.5px] text-muted">{expired ? t('The code has expired') : t('Pairing code (one-time, expires in {time})', { time: mmss })}</div>
+          <div className={cx('selectable my-1 font-mono text-[28px] font-semibold tracking-[0.2em]', expired ? 'text-muted line-through' : 'text-accent')}>{res.code}</div>
+          <div className="mb-2 flex justify-center gap-2">
+            {expired ? (
+              <Button size="sm" variant="primary" disabled={busy} onClick={() => void create()}>
+                {busy && <Spinner />} {t('New code')}
+              </Button>
+            ) : (
+              <Button size="sm" onClick={() => void copy()}>
+                <Copy size={14} /> {t('Copy')}
+              </Button>
+            )}
+          </div>
+          <div className="text-[12.5px] text-muted">{rich(t('Computer: Settings → Home server. Phone or browser: open {url} and enter the code.'), { url: <b className="selectable">{url}</b> })}</div>
+        </div>
+      )}
+    </>
+  )
+}
+
 function ServerTab() {
   const toast = useStore((s) => s.toast)
   const [st, setSt] = useState<ServerStatus | null>(null)
@@ -593,7 +670,6 @@ function ServerTab() {
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [probe, setProbe] = useState('')
-  const [newCode, setNewCode] = useState<{ code: string; expires: number } | null>(null)
   const load = async () => setSt((await window.octo.serverStatus()) as ServerStatus)
   useEffect(() => void load(), [])
   if (!st) return <Spinner />
@@ -708,22 +784,7 @@ function ServerTab() {
             )}
           </div>
         ))}
-        <div className="py-2">
-          <Button size="sm" onClick={async () => setNewCode(await window.octo.serverNewCode())}>
-            <Plus size={14} /> {t('Add device')}
-          </Button>
-        </div>
-        {newCode && (
-          <div className="mb-2 rounded-xl bg-accent-soft p-4 text-center">
-            <div className="text-[12.5px] text-muted">
-              {t('Pairing code (one-time, valid until {time})', { time: new Date(newCode.expires).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' }) })}
-            </div>
-            <div className="selectable my-1 font-mono text-[28px] font-semibold tracking-[0.2em] text-accent">{newCode.code}</div>
-            <div className="text-[12.5px] text-muted">
-              {rich(t('Computer: Settings → Home server. Phone or browser: open {url} and enter the code.'), { url: <b className="selectable">{st.url}</b> })}
-            </div>
-          </div>
-        )}
+        <PairingCodeBox url={st.url} />
       </Section>
       <Section title={t('Claude Code with a home server')}>
         <div className="py-2 text-[12.5px] leading-relaxed text-muted">

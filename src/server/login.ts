@@ -59,7 +59,7 @@ button{margin-top:12px;width:100%;height:42px;border:0;border-radius:10px;backgr
 code{font-size:12.5px}
 </style></head><body><form class="card" method="post" action="/api/login">
 <img src="/logo.svg" alt="" onerror="this.remove()"><h1>Octopus Mail</h1>
-<p>${t('Enter the pairing code from your home server.')}<br>${t('New code:')} <code>octo server pair</code></p>
+<p>${t('Enter the pairing code from your home server.')}<br>${t('New code:')} <code>octo server pair</code><br>${t('or ask from a paired device')}</p>
 <input name="code" placeholder="XXXX-XXXX" autocomplete="one-time-code" autofocus required maxlength="9">
 <button type="submit">${t('Connect')}</button>${err ? `<div class="err">${err}</div>` : ''}
 </form></body></html>`

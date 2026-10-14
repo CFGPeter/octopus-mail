@@ -23,6 +23,7 @@ interface Pairing {
 const DEVICES = 'server.devices'
 const PAIRINGS = 'server.pairings'
 const PAIR_TTL = 15 * 60_000
+const MAX_LIVE_CODES = 5 // repeated clicks cannot grow the store: the oldest code is dropped
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // no 0/O/1/I
 
 const sha = (s: string) => crypto.createHash('sha256').update(s).digest('hex')
@@ -39,7 +40,7 @@ export function createPairingCode(name?: string): { code: string; expires: numbe
   const expires = now() + PAIR_TTL
   const list = getKV<Pairing[]>(PAIRINGS, []).filter((p) => p.expires > now())
   list.push({ codeHash: sha(code.replace('-', '').toUpperCase()), name: name || null, expires })
-  setKV(PAIRINGS, list)
+  setKV(PAIRINGS, list.slice(-MAX_LIVE_CODES))
   return { code, expires }
 }
 

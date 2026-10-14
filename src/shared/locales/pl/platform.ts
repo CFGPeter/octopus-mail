@@ -52,6 +52,7 @@ const dict: Dictionary = {
     'Octopus Mail — sign in': 'Octopus Mail — logowanie',
     'Enter the pairing code from your home server.': 'Wpisz kod parowania z serwera domowego.',
     'New code:': 'Nowy kod:',
+    'or ask from a paired device': 'albo poproś o kod z już sparowanego urządzenia',
     Connect: 'Połącz',
     'Too many attempts — wait 10 minutes.': 'Za dużo prób — odczekaj 10 minut.',
     'Invalid or expired code.': 'Nieprawidłowy albo wygasły kod.',
