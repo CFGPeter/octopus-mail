@@ -123,3 +123,5 @@ export const accountSecretKey = (accountId: number): string => `account:${accoun
 export const oauthSecretKey = (accountId: number): string => `oauth:${accountId}`
 export const calSourceSecretKey = (sourceId: number): string => `calsource:${sourceId}`
 export const claudeKeyName = 'anthropic-api-key'
+export const openaiKeyName = 'openai-compatible-api-key'
+export const anthropicCompatKeyName = 'anthropic-compatible-api-key'

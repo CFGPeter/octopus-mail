@@ -35,7 +35,7 @@ function rich(text: string, slots: Record<string, ReactNode>): ReactNode {
   return text.split(/\{(\w+)\}/).map((part, i) => (i % 2 ? <Fragment key={i}>{slots[part]}</Fragment> : part))
 }
 
-function Section({ title, children, hint }: { title: string; children: ReactNode; hint?: ReactNode }) {
+function Section({ title, children, hint }: { title: ReactNode; children: ReactNode; hint?: ReactNode }) {
   return (
     <div className="mb-6">
       <div className="mb-1 text-[14px] font-semibold">{title}</div>
@@ -469,22 +469,39 @@ function RulesTab() {
   )
 }
 
+/** Section title for an AI provider: a pill when it is the one used by default, otherwise a button to make it so. */
+function ProviderHeader({ title, active, onUse }: { title: string; active: boolean; onUse: () => void }) {
+  return (
+    <span className="flex items-center gap-2">
+      {title}
+      {active ? (
+        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-medium text-accent">{t('Used by default')}</span>
+      ) : (
+        <button type="button" className="rounded-full border border-line px-2 py-0.5 text-[11px] font-normal text-muted hover:text-accent" onClick={onUse}>{t('Use by default')}</button>
+      )}
+    </span>
+  )
+}
+
 function AiTab() {
   const [s, set] = useSettings()
   const [status, setStatus] = useState<Awaited<ReturnType<typeof api.aiStatus>> | null>(null)
   const [key, setKey] = useState('')
+  const [okey, setOkey] = useState('')
+  const [akey, setAkey] = useState('')
   const toast = useStore((st) => st.toast)
   const load = async () => setStatus(await api.aiStatus())
   useEffect(() => void load(), [])
   const ai = (p: Partial<AppSettings['ai']>) => set({ ai: { ...s.ai, ...p } })
+  const head = (id: AppSettings['ai']['provider'], title: string) => <ProviderHeader title={title} active={s.ai.provider === id} onUse={() => ai({ provider: id })} />
   return (
     <>
       <Section title={t('AI engine')} hint={t('Summaries, reply drafting, translations, quick replies and questions about your mail.')}>
         <Field label={t('Provider')}>
-          <Select value={s.ai.provider} onChange={(v) => ai({ provider: v })} options={[{ value: 'ollama', label: t('Ollama — local, free, private') }, { value: 'claude', label: t('Claude (Anthropic) — best quality, pay per use') }, { value: 'off', label: t('Off') }]} />
+          <Select value={s.ai.provider} onChange={(v) => ai({ provider: v })} options={[{ value: 'ollama', label: t('Ollama — local, free, private') }, { value: 'claude', label: t('Claude (Anthropic) — best quality, pay per use') }, { value: 'openai', label: t('OpenAI-compatible API (Mammouth, OpenRouter, …)') }, { value: 'anthropic-compat', label: t('Anthropic-compatible API (custom address)') }, { value: 'off', label: t('Off') }]} />
         </Field>
       </Section>
-      <Section title={t('Ollama (local)')}>
+      <Section title={head('ollama', t('Ollama (local)'))}>
         <Field label={t('Ollama address')}><input className={inputCls} value={s.ai.ollamaUrl} onChange={(e) => ai({ ollamaUrl: e.target.value })} /></Field>
         <Field label="Model" hint={status && !status.ollamaModels.length ? t('Ollama is not responding — start it to see the models.') : t('gemma3:12b and qwen3:8b work well, also for Polish.')}>
           <div className="flex gap-2">
@@ -493,7 +510,7 @@ function AiTab() {
           </div>
         </Field>
       </Section>
-      <Section title="Claude (Anthropic API)" hint={t('The key from console.anthropic.com is stored {where}. Email content is then sent to the Anthropic API.', { where: useStore.getState().secretStore })}>
+      <Section title={head('claude', 'Claude (Anthropic API)')} hint={t('The key from console.anthropic.com is stored {where}. Email content is then sent to the Anthropic API.', { where: useStore.getState().secretStore })}>
         <Field label={status?.hasClaudeKey ? t('API key (saved — enter a new one to change it)') : t('API key')}>
           <div className="flex gap-2">
             <input className={inputCls} type="password" placeholder="sk-ant-…" value={key} onChange={(e) => setKey(e.target.value)} />
@@ -501,6 +518,34 @@ function AiTab() {
           </div>
         </Field>
         <Field label="Model"><Select value={s.ai.claudeModel} onChange={(v) => ai({ claudeModel: v })} options={(status?.claudeModels || []).map((m) => ({ value: m.id, label: m.label }))} /></Field>
+      </Section>
+      <Section title={head('openai', t('OpenAI-compatible API'))} hint={t('Works with Mammouth, OpenRouter, LM Studio and any service with a /chat/completions endpoint. The key is stored {where}. Email content is sent to that service.', { where: useStore.getState().secretStore })}>
+        <Field label={t('API address')} hint={t('Base address as given in the service documentation, usually ending in /v1.')}>
+          <input className={inputCls} placeholder="https://…/v1" value={s.ai.openaiUrl} onChange={(e) => ai({ openaiUrl: e.target.value })} />
+        </Field>
+        <Field label={status?.hasOpenaiKey ? t('API key (saved — enter a new one to change it)') : t('API key')}>
+          <div className="flex gap-2">
+            <input className={inputCls} type="password" value={okey} onChange={(e) => setOkey(e.target.value)} />
+            <Button onClick={async () => (await api.setOpenaiKey(okey || null), setOkey(''), toast({ level: 'success', message: okey ? t('Key saved') : t('Key removed') }), void load())}>{okey ? t('Save') : t('Remove')}</Button>
+          </div>
+        </Field>
+        <Field label="Model" hint={t('Exact model name from the service, e.g. a small, cheap model to save credits.')}>
+          <input className={inputCls} value={s.ai.openaiModel} onChange={(e) => ai({ openaiModel: e.target.value })} />
+        </Field>
+      </Section>
+      <Section title={head('anthropic-compat', t('Anthropic-compatible API'))} hint={t('For services that offer the Anthropic messages API under their own address. The key is stored {where}. Email content is sent to that service.', { where: useStore.getState().secretStore })}>
+        <Field label={t('API address')} hint={t('Base address without /v1/messages, as given in the service documentation.')}>
+          <input className={inputCls} placeholder="https://…" value={s.ai.anthropicCompatUrl} onChange={(e) => ai({ anthropicCompatUrl: e.target.value })} />
+        </Field>
+        <Field label={status?.hasAnthropicCompatKey ? t('API key (saved — enter a new one to change it)') : t('API key')}>
+          <div className="flex gap-2">
+            <input className={inputCls} type="password" value={akey} onChange={(e) => setAkey(e.target.value)} />
+            <Button onClick={async () => (await api.setAnthropicCompatKey(akey || null), setAkey(''), toast({ level: 'success', message: akey ? t('Key saved') : t('Key removed') }), void load())}>{akey ? t('Save') : t('Remove')}</Button>
+          </div>
+        </Field>
+        <Field label="Model" hint={t('Exact model name from the service, e.g. a small, cheap model to save credits.')}>
+          <input className={inputCls} value={s.ai.anthropicCompatModel} onChange={(e) => ai({ anthropicCompatModel: e.target.value })} />
+        </Field>
       </Section>
       <Section title={t('Style')}>
         <Field label={t('Reply language')}><Select value={s.ai.replyLanguage} onChange={(v) => ai({ replyLanguage: v })} options={[{ value: 'auto', label: t('Same as the conversation') }, { value: 'pl', label: t('Always in Polish') }, { value: 'en', label: t('Always in English') }]} /></Field>
