@@ -61,7 +61,7 @@ export default function AskView() {
         <DrawerButton />
         <Sparkles size={16} className="text-accent" />
         <div className="flex-1 font-semibold">{t('Ask AI about your mail')}</div>
-        <span className="text-[12px] text-muted max-md:hidden">{settings?.ai.provider === 'claude' ? `Claude (${settings.ai.claudeModel})` : settings?.ai.provider === 'ollama' ? t('Ollama ({model}) — local', { model: settings.ai.ollamaModel }) : t('AI off')}</span>
+        <span className="text-[12px] text-muted max-md:hidden">{settings?.ai.provider === 'claude' ? `Claude (${settings.ai.claudeModel})` : settings?.ai.provider === 'openai' ? `${settings.ai.openaiModel || 'API'}` : settings?.ai.provider === 'ollama' ? t('Ollama ({model}) — local', { model: settings.ai.ollamaModel }) : t('AI off')}</span>
         <IconButton title={t('Close')} onClick={() => setView('mail')}><X size={16} /></IconButton>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 max-md:px-3 max-md:py-4">

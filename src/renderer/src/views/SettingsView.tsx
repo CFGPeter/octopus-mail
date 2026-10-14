@@ -473,6 +473,7 @@ function AiTab() {
   const [s, set] = useSettings()
   const [status, setStatus] = useState<Awaited<ReturnType<typeof api.aiStatus>> | null>(null)
   const [key, setKey] = useState('')
+  const [okey, setOkey] = useState('')
   const toast = useStore((st) => st.toast)
   const load = async () => setStatus(await api.aiStatus())
   useEffect(() => void load(), [])
@@ -481,7 +482,7 @@ function AiTab() {
     <>
       <Section title={t('AI engine')} hint={t('Summaries, reply drafting, translations, quick replies and questions about your mail.')}>
         <Field label={t('Provider')}>
-          <Select value={s.ai.provider} onChange={(v) => ai({ provider: v })} options={[{ value: 'ollama', label: t('Ollama — local, free, private') }, { value: 'claude', label: t('Claude (Anthropic) — best quality, pay per use') }, { value: 'off', label: t('Off') }]} />
+          <Select value={s.ai.provider} onChange={(v) => ai({ provider: v })} options={[{ value: 'ollama', label: t('Ollama — local, free, private') }, { value: 'claude', label: t('Claude (Anthropic) — best quality, pay per use') }, { value: 'openai', label: t('OpenAI-compatible API (Mammouth, OpenRouter, …)') }, { value: 'off', label: t('Off') }]} />
         </Field>
       </Section>
       <Section title={t('Ollama (local)')}>
@@ -501,6 +502,20 @@ function AiTab() {
           </div>
         </Field>
         <Field label="Model"><Select value={s.ai.claudeModel} onChange={(v) => ai({ claudeModel: v })} options={(status?.claudeModels || []).map((m) => ({ value: m.id, label: m.label }))} /></Field>
+      </Section>
+      <Section title={t('OpenAI-compatible API')} hint={t('Works with Mammouth, OpenRouter, LM Studio and any service with a /chat/completions endpoint. The key is stored {where}. Email content is sent to that service.', { where: useStore.getState().secretStore })}>
+        <Field label={t('API address')} hint={t('Base address as given in the service documentation, usually ending in /v1.')}>
+          <input className={inputCls} placeholder="https://…/v1" value={s.ai.openaiUrl} onChange={(e) => ai({ openaiUrl: e.target.value })} />
+        </Field>
+        <Field label={status?.hasOpenaiKey ? t('API key (saved — enter a new one to change it)') : t('API key')}>
+          <div className="flex gap-2">
+            <input className={inputCls} type="password" value={okey} onChange={(e) => setOkey(e.target.value)} />
+            <Button onClick={async () => (await api.setOpenaiKey(okey || null), setOkey(''), toast({ level: 'success', message: okey ? t('Key saved') : t('Key removed') }), void load())}>{okey ? t('Save') : t('Remove')}</Button>
+          </div>
+        </Field>
+        <Field label="Model" hint={t('Exact model name from the service, e.g. a small, cheap model to save credits.')}>
+          <input className={inputCls} value={s.ai.openaiModel} onChange={(e) => ai({ openaiModel: e.target.value })} />
+        </Field>
       </Section>
       <Section title={t('Style')}>
         <Field label={t('Reply language')}><Select value={s.ai.replyLanguage} onChange={(v) => ai({ replyLanguage: v })} options={[{ value: 'auto', label: t('Same as the conversation') }, { value: 'pl', label: t('Always in Polish') }, { value: 'en', label: t('Always in English') }]} /></Field>

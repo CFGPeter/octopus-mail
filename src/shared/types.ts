@@ -375,11 +375,14 @@ export interface AppSettings {
   launchAtLogin: boolean
   minimizeToTray: boolean
   ai: {
-    provider: 'ollama' | 'claude' | 'off'
+    provider: 'ollama' | 'claude' | 'openai' | 'off'
     ollamaUrl: string
     ollamaModel: string
     ollamaEmbedModel: string
     claudeModel: string
+    /** any OpenAI-compatible endpoint (Mammouth, OpenRouter, LM Studio …): base URL ending in /v1 */
+    openaiUrl: string
+    openaiModel: string
     smartCategorize: boolean
     autoSummaries: boolean
     replyLanguage: 'auto' | 'pl' | 'en'

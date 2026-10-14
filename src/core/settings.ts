@@ -24,6 +24,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
     ollamaModel: 'gemma3:12b',
     ollamaEmbedModel: '',
     claudeModel: 'claude-opus-5-5',
+    openaiUrl: '',
+    openaiModel: '',
     smartCategorize: false,
     autoSummaries: false,
     replyLanguage: 'auto',

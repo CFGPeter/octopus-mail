@@ -2,7 +2,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { t } from '../../shared/i18n'
 import type { AiResult } from '../../shared/types'
-import { claudeKeyName, getSecret, setSecret, deleteSecret } from '../secrets'
+import { claudeKeyName, openaiKeyName, getSecret, setSecret, deleteSecret } from '../secrets'
 import { getSettings } from '../settings'
 
 export interface ChatTurn {
@@ -19,7 +19,7 @@ export interface CompleteOptions {
   /** Claude effort level; small tasks (classification, quick replies) use 'low' */
   effort?: 'low' | 'medium' | 'high'
   signal?: AbortSignal
-  provider?: 'ollama' | 'claude'
+  provider?: 'ollama' | 'claude' | 'openai'
 }
 
 export function claudeModels(): { id: string; label: string }[] {
@@ -46,14 +46,25 @@ function claudeClient(): Anthropic {
   return new Anthropic({ apiKey: key })
 }
 
-export function activeProvider(): 'ollama' | 'claude' | 'off' {
+export function setOpenaiKey(key: string | null): void {
+  if (key) setSecret(openaiKeyName, key.trim())
+  else deleteSecret(openaiKeyName)
+}
+
+export function hasOpenaiKey(): boolean {
+  return !!getSecret(openaiKeyName)
+}
+
+export function activeProvider(): 'ollama' | 'claude' | 'openai' | 'off' {
   return getSettings().ai.provider
 }
 
 export async function complete(opts: CompleteOptions): Promise<AiResult> {
   const provider = opts.provider || activeProvider()
   if (provider === 'off') throw new Error(t('AI features are turned off (Settings → AI).'))
-  return provider === 'claude' ? completeClaude(opts) : completeOllama(opts)
+  if (provider === 'claude') return completeClaude(opts)
+  if (provider === 'openai') return completeOpenai(opts)
+  return completeOllama(opts)
 }
 
 async function completeClaude(opts: CompleteOptions): Promise<AiResult> {
@@ -90,6 +101,69 @@ async function completeClaude(opts: CompleteOptions): Promise<AiResult> {
     .map((b) => b.text)
     .join('')
   return { text, provider: 'claude', model: message.model }
+}
+
+/** OpenAI-compatible chat completions (Mammouth, OpenRouter, LM Studio, …). */
+async function completeOpenai(opts: CompleteOptions): Promise<AiResult> {
+  const s = getSettings().ai
+  const base = s.openaiUrl.trim().replace(/\/+$/, '')
+  const key = getSecret(openaiKeyName)
+  if (!base || !s.openaiModel.trim()) throw new Error(t('Set the API address and the model in Settings → AI.'))
+  if (!key) throw new Error(t('No API key — add it in Settings → AI.'))
+  const model = s.openaiModel.trim()
+  const stream = !!opts.onDelta
+  const body = (json: boolean) => ({
+    model,
+    stream,
+    temperature: opts.json ? 0.1 : 0.4,
+    max_tokens: opts.maxTokens ?? 2048,
+    response_format: json ? { type: 'json_object' } : undefined,
+    messages: [{ role: 'system', content: opts.system }, ...opts.messages],
+  })
+  const call = (json: boolean) =>
+    fetch(`${base}/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify(body(json)),
+      signal: opts.signal,
+    })
+  let r = await call(!!opts.json)
+  // some providers reject response_format: retry once without it (parseJsonLoose copes with prose)
+  if (r.status === 400 && opts.json) r = await call(false)
+  if (r.status === 401 || r.status === 403) throw new Error(t('Invalid API key.'))
+  if (r.status === 429) throw new Error(t('API rate limit or credit limit reached — try again later.'))
+  if (!r.ok) throw new Error(`API (${r.status}): ${(await r.text()).slice(0, 300)}`)
+  if (!stream) {
+    const j = (await r.json()) as { choices?: { message?: { content?: string } }[] }
+    return { text: stripThink(j.choices?.[0]?.message?.content || ''), provider: 'openai', model }
+  }
+  let text = ''
+  const reader = r.body!.getReader()
+  const dec = new TextDecoder()
+  let buf = ''
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buf += dec.decode(value, { stream: true })
+    let nl: number
+    while ((nl = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, nl).trim()
+      buf = buf.slice(nl + 1)
+      if (!line.startsWith('data:')) continue
+      const data = line.slice(5).trim()
+      if (!data || data === '[DONE]') continue
+      try {
+        const piece = (JSON.parse(data) as { choices?: { delta?: { content?: string } }[] }).choices?.[0]?.delta?.content || ''
+        if (piece) {
+          text += piece
+          opts.onDelta?.(piece)
+        }
+      } catch {
+        /* partial line */
+      }
+    }
+  }
+  return { text: stripThink(text), provider: 'openai', model }
 }
 
 export async function ollamaModels(): Promise<{ name: string; size: number }[]> {
