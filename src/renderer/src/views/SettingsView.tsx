@@ -3,6 +3,7 @@ import {
 } from 'lucide-react'
 import { Fragment, type ReactNode, useEffect, useState } from 'react'
 import type { Account, AgentAccess, AppSettings, Rule, RuleAction, RuleCondition, Signature, Template } from '../../../shared/types'
+import { DEFAULT_DRAFT_PROMPT, MAX_DRAFT_PROMPT } from '../../../shared/draft-prompt'
 import { dateLocale, getLang, LANGUAGES, t, tp } from '../../../shared/i18n'
 import { api, errorText } from '../lib/api'
 import { copyText, fullDate } from '../lib/format'
@@ -473,6 +474,7 @@ function AiTab() {
   const [s, set] = useSettings()
   const [status, setStatus] = useState<Awaited<ReturnType<typeof api.aiStatus>> | null>(null)
   const [key, setKey] = useState('')
+  const [showDefault, setShowDefault] = useState(false)
   const toast = useStore((st) => st.toast)
   const load = async () => setStatus(await api.aiStatus())
   useEffect(() => void load(), [])
@@ -506,6 +508,17 @@ function AiTab() {
         <Field label={t('Reply language')}><Select value={s.ai.replyLanguage} onChange={(v) => ai({ replyLanguage: v })} options={[{ value: 'auto', label: t('Same as the conversation') }, { value: 'pl', label: t('Always in Polish') }, { value: 'en', label: t('Always in English') }]} /></Field>
         <Field label={t('About me (persona)')} hint={t('Who you are and how you write — the AI uses this when drafting replies.')}>
           <textarea className={cx(inputCls, 'h-24 py-2')} value={s.ai.persona} placeholder={t('e.g. Anna, owner of a small design studio. I write briefly and to the point, on a first-name basis.')} onChange={(e) => ai({ persona: e.target.value })} />
+        </Field>
+        <Field label={t('Writing instructions')} hint={t('How the AI writes reply drafts. Empty = built-in default. Language, tone, plain-text output and the rule that email content is never treated as instructions always apply.')}>
+          <textarea className={cx(inputCls, 'h-32 py-2')} maxLength={MAX_DRAFT_PROMPT} value={s.ai.draftPrompt} placeholder={DEFAULT_DRAFT_PROMPT} onChange={(e) => ai({ draftPrompt: e.target.value })} />
+          <div className="mt-1 flex items-center justify-between gap-2 text-[12px] text-muted">
+            <span>{s.ai.draftPrompt.length} / {MAX_DRAFT_PROMPT}</span>
+            <span className="flex gap-3">
+              <button type="button" className="text-accent hover:underline" onClick={() => setShowDefault(!showDefault)}>{showDefault ? t('Hide default') : t('Show default')}</button>
+              <button type="button" className="text-accent hover:underline disabled:opacity-40" disabled={!s.ai.draftPrompt} onClick={() => ai({ draftPrompt: '' })}>{t('Restore default')}</button>
+            </span>
+          </div>
+          {showDefault && <pre className="mt-2 whitespace-pre-wrap rounded-md border border-border bg-surface-2 p-2 font-sans text-[12px] text-muted">{DEFAULT_DRAFT_PROMPT}</pre>}
         </Field>
       </Section>
     </>

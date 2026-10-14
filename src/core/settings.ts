@@ -28,6 +28,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     autoSummaries: false,
     replyLanguage: 'auto',
     persona: '',
+    draftPrompt: '',
   },
   snoozeMorningHour: 8,
   snoozeEveningHour: 18,

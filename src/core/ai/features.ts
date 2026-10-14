@@ -2,6 +2,7 @@
 // smart categorisation and "ask my inbox". Works with Ollama or Claude (see provider.ts).
 import crypto from 'node:crypto'
 import { dateLocale, getLang, t } from '../../shared/i18n'
+import { DEFAULT_DRAFT_PROMPT, MAX_DRAFT_PROMPT } from '../../shared/draft-prompt'
 import type { AiResult, Category } from '../../shared/types'
 import { all, get, now, parseJson, run, type Row } from '../db'
 import { getAccount } from '../accounts'
@@ -107,6 +108,8 @@ No preamble and do not repeat the subject.`),
   return r
 }
 
+export { DEFAULT_DRAFT_PROMPT, MAX_DRAFT_PROMPT }
+
 export type ReplyTone = 'auto' | 'formal' | 'friendly' | 'short' | 'detailed'
 
 export async function draftReply(threadId: number, opts: { instructions?: string; tone?: ReplyTone; onDelta?: (t: string) => void } = {}): Promise<AiResult> {
@@ -120,11 +123,14 @@ export async function draftReply(threadId: number, opts: { instructions?: string
     detailed: 'A thorough reply that addresses every point.',
   }[opts.tone || 'auto']
   const style = await writingStyleSample(acc.id)
+  // replaceable part: the user's own writing instructions or the default; language, tone and output format stay locked
+  const custom = (getSettings().ai.draftPrompt || '').trim().slice(0, MAX_DRAFT_PROMPT)
+  const rules = custom || DEFAULT_DRAFT_PROMPT
   return complete({
     system: baseSystem(`You write a reply to the last message in the conversation on behalf of the user (${acc.name} <${acc.email}>).
+${rules}
 ${languageRule()} ${tone}
-Return ONLY the body of the reply (no subject, no quote of earlier messages, no signature — the app adds the signature).
-Start with a greeting that fits the conversation. Do not invent facts, dates or amounts that are not in the conversation — put ${t('[to fill in]')} in their place.${style ? `\nExamples of the user's writing style:\n${style}` : ''}`),
+Return ONLY the body of the reply (no subject, no quote of earlier messages, no signature — the app adds the signature).${style ? `\nExamples of the user's writing style:\n${style}` : ''}`),
     messages: [{ role: 'user', content: `${tr.text}\n\n${opts.instructions ? `The user's instructions for the reply: ${opts.instructions}` : 'Write the reply.'}` }],
     maxTokens: 2000,
     effort: 'medium',

@@ -218,6 +218,12 @@ const dict: Dictionary = {
     'Same as the conversation': 'Jak w korespondencji',
     'Always in Polish': 'Zawsze po polsku',
     'Always in English': 'Zawsze po angielsku',
+    'Writing instructions': 'Instrukcje pisania',
+    'How the AI writes reply drafts. Empty = built-in default. Language, tone, plain-text output and the rule that email content is never treated as instructions always apply.':
+      'Jak AI pisze szkice odpowiedzi. Puste = wbudowana instrukcja. Język, ton, czysty tekst na wyjściu i zasada, że treść maili nigdy nie jest poleceniem, obowiązują zawsze.',
+    'Show default': 'Pokaż domyślną',
+    'Hide default': 'Ukryj domyślną',
+    'Restore default': 'Przywróć domyślną',
     'About me (persona)': 'O mnie (persona)',
     'Who you are and how you write — the AI uses this when drafting replies.':
       'Kim jesteś i jak piszesz — AI użyje tego przy redagowaniu odpowiedzi.',

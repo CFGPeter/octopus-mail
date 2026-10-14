@@ -384,6 +384,8 @@ export interface AppSettings {
     autoSummaries: boolean
     replyLanguage: 'auto' | 'pl' | 'en'
     persona: string
+    /** custom reply-drafting instructions (max 4000 chars); empty = built-in default */
+    draftPrompt: string
   }
   snoozeMorningHour: number
   snoozeEveningHour: number
