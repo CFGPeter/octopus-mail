@@ -1,0 +1,21 @@
+# Octopus Mail on a Synology NAS (DS224+ = Intel, linux/amd64) with the prebuilt image.
+# Container Manager → Project → Create → paste this file, or over SSH:
+#   sudo mkdir -p /volume1/docker/octopus-mail && sudo chown 1000:1000 /volume1/docker/octopus-mail
+#   sudo docker compose -f docker-compose.synology.yml up -d
+#   sudo docker exec octopus-mail octo server pair        ← pairing code (15 min)
+# Put it behind the DSM reverse proxy (HTTPS 443 → localhost:8787): see docs/synology.md.
+services:
+  octopus:
+    image: ghcr.io/cfgpeter/octopus-mail:latest
+    container_name: octopus-mail
+    restart: unless-stopped
+    # only the reverse proxy on the NAS talks to it: never forward 8787 on your router
+    ports:
+      - "127.0.0.1:8787:8787"
+    volumes:
+      - /volume1/docker/octopus-mail:/data
+    environment:
+      TZ: Europe/Paris
+      # trust X-Forwarded-For / X-Forwarded-Proto from the DSM reverse proxy
+      OCTO_TRUST_PROXY: "1"
+    mem_limit: 512m

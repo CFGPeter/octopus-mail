@@ -32,8 +32,22 @@ const MIME: Record<string, string> = {
   '.woff2': 'font/woff2', '.webmanifest': 'application/manifest+json',
 }
 
-function clientIp(req: http.IncomingMessage): string {
+/**
+ * Address of the caller. Behind a reverse proxy (DSM, nginx, Caddy) every request arrives from the proxy, so with
+ * OCTO_TRUST_PROXY=1 the left-most X-Forwarded-For entry is used; otherwise only the socket address is trusted.
+ */
+export function clientIp(req: http.IncomingMessage): string {
+  if (process.env.OCTO_TRUST_PROXY === '1') {
+    const xff = req.headers['x-forwarded-for']
+    const first = (Array.isArray(xff) ? xff[0] : xff)?.split(',')[0]?.trim()
+    if (first) return first.replace(/^::ffff:/, '')
+  }
   return (req.socket.remoteAddress || '').replace(/^::ffff:/, '')
+}
+
+/** "; Secure" when the browser reached us over HTTPS through a trusted proxy. */
+export function secureFlag(req: http.IncomingMessage): string {
+  return process.env.OCTO_TRUST_PROXY === '1' && req.headers['x-forwarded-proto'] === 'https' ? '; Secure' : ''
 }
 
 function cookie(req: http.IncomingMessage, name: string): string | null {
@@ -124,7 +138,7 @@ export async function runServer(opts: ServeOptions = {}): Promise<http.Server> {
         }
         res.writeHead(303, {
           Location: '/',
-          'Set-Cookie': `octo_token=${encodeURIComponent(r.token)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000`,
+          'Set-Cookie': `octo_token=${encodeURIComponent(r.token)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=31536000${secureFlag(req)}`,
         })
         return res.end()
       }
@@ -159,7 +173,7 @@ export async function runServer(opts: ServeOptions = {}): Promise<http.Server> {
       if (url.pathname === '/api/me') return send(res, 200, { device })
       if (url.pathname === '/api/logout' && req.method === 'POST') {
         revokeDevice(device.id)
-        return send(res, 200, { ok: true }, { 'Set-Cookie': 'octo_token=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0' })
+        return send(res, 200, { ok: true }, { 'Set-Cookie': `octo_token=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${secureFlag(req)}` })
       }
       if (url.pathname === '/api/devices' && req.method === 'GET') return send(res, 200, { devices: listDevices() })
       if (url.pathname === '/api/devices/pair' && req.method === 'POST') {
